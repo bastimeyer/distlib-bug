@@ -1,0 +1,39 @@
+name: Build
+
+on:
+    push: {}
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.10"
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - name: Python embed archives
+        shell: bash
+        run: |
+          curl -SLo python32.zip 'https://www.python.org/ftp/python/3.10.2/python-3.10.2-embed-win32.zip'
+          curl -SLo python64.zip 'https://www.python.org/ftp/python/3.10.2/python-3.10.2-embed-amd64.zip'
+          unzip python32.zip -d python32
+          unzip python64.zip -d python64
+          ls -l python*
+      - name: Build
+        shell: bash
+        run: |
+          bash ./build.sh
+          ls -l *.exe
+      - name: Run
+        shell: bash
+        run: |
+          for file in ./*.exe; do
+            echo "FILE: $file"
+            ( set -x; bash ./run.sh "$file" foo bar )
+            ( set -x; node ./run.js "$file" foo bar )
+            echo ""
+            echo ""
+          done
