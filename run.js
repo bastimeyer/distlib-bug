@@ -13,7 +13,7 @@ console.log( `Exec: ${JSON.stringify( exec )}` );
 console.log( `Args: ${JSON.stringify( args )}` );
 
 const inst = spawn( exec, args, {
-    detached: true
+    detached: false
 });
 inst.on( "error", e => {
     console.log( `Error: ${e}` );
