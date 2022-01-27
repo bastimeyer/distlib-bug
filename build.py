@@ -2,7 +2,6 @@ import distlib.scripts
 import io
 import os.path as osp
 import sys
-from distlib import __version__ as distlibversion
 from pathlib import Path
 from zipfile import ZipFile
 
@@ -19,10 +18,10 @@ def find_exe(bitness=32, console=True):
     name = "t" if console else "w"
     return osp.join(distlib_dir, f"{name}{bitness}.exe")
 
-def build(name, commands):
+def build(name, distlibhash, commands):
     for bitness, console in commands:
         suffix = "" if console else "w"
-        exe_path = Path(".") / f"{name}-distlib{distlibversion}-{suffix}{bitness}.exe"
+        exe_path = Path(".") / f"{name}-distlib+{distlibhash}-{suffix}{bitness}.exe"
 
         # 1. Get the base launcher exe from distlib
         with open(find_exe(bitness, console), "rb") as f:
@@ -44,7 +43,7 @@ def build(name, commands):
 
 
 if __name__ == "__main__":
-    build("launcher", (
+    build("launcher", sys.argv[1], (
         (32, True),
         (32, False),
         (64, True),

@@ -30,7 +30,7 @@ jobs:
       - name: Run
         shell: bash
         run: |
-          for file in ./*.exe; do
+          for file in $(find . -name 'launcher-*.exe' | sort -V); do
             echo "FILE: $file"
             ( set -x; bash ./run.sh "$file" foo bar )
             ( set -x; node ./run.js "$file" foo bar )
