@@ -1,3 +1,5 @@
+( set -x; git --version; )
+
 [[ -d distlib-git ]] || git clone https://github.com/pypa/distlib.git distlib-git
 
 while read -r hash describe; do
