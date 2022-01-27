@@ -34,6 +34,7 @@ jobs:
             echo "FILE: $file"
             ( set -x; bash ./run.sh "$file" foo bar )
             ( set -x; node ./run.js "$file" foo bar )
+            ( set -x; node ./run-sync.js "$file" foo bar )
             echo ""
             echo ""
           done

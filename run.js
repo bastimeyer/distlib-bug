@@ -8,7 +8,7 @@ if ( process.argv.length < 3 ) {
 const exec = process.argv[ 2 ];
 const args = process.argv.slice( 3 );
 
-console.log( "Running via NodeJS" );
+console.log( "Running via NodeJS - spawn" );
 console.log( `Exec: ${JSON.stringify( exec )}` );
 console.log( `Args: ${JSON.stringify( args )}` );
 
