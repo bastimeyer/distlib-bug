@@ -5,7 +5,7 @@
 while read -r hash; do
   describe=$(git --git-dir ./distlib-git/.git describe --tags "${hash}")
   echo "Installing distlib ${describe} (${hash})"
-  pip install "git+file://$(pwd)/distlib-git/.git@${hash}"
+  pip install --force-reinstall "git+file://$(pwd)/distlib-git/.git@${hash}"
   echo "Building launchers with distlib ${describe} (${hash})"
   python ./build.py "${describe}"
   echo ""
