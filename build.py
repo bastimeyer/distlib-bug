@@ -21,7 +21,7 @@ def find_exe(bitness=32, console=True):
 def build(name, distlibhash, commands):
     for bitness, console in commands:
         suffix = "" if console else "w"
-        exe_path = Path(".") / f"{name}-distlib+{distlibhash}-{suffix}{bitness}.exe"
+        exe_path = Path(".") / f"{name}-distlib{distlibhash}-{suffix}{bitness}.exe"
 
         # 1. Get the base launcher exe from distlib
         with open(find_exe(bitness, console), "rb") as f:

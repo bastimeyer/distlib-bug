@@ -9,4 +9,4 @@ while read -r hash; do
   echo "Building launchers with distlib ${describe} (${hash})"
   python ./build.py "${describe}"
   echo ""
-done < <(git --git-dir ./distlib-git/.git log "--pretty=format:%H" 0.3.3..0.3.4)
+done < <(git --git-dir ./distlib-git/.git log "--pretty=format:%H" 0.3.3~1..0.3.4)
