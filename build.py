@@ -1,51 +1,45 @@
 import distlib.scripts
 import io
-import os.path as osp
 import sys
 from pathlib import Path
 from zipfile import ZipFile
 
 
-SCRIPT = """import sys
+SCRIPT = """
+from time import sleep
 
-if __name__ == '__main__':
-    print(sys.argv)
-    sys.exit(0)
+max = 20
+for num in range(max):
+    print(f"RUNNING PYTHON SCRIPT... STEP {num}/{max}")
+    sleep(1)
+
+print("PYTHON SCRIPT ENDED")
 """
 
-def find_exe(bitness=32, console=True):
-    distlib_dir = osp.dirname(distlib.scripts.__file__)
-    name = "t" if console else "w"
-    return osp.join(distlib_dir, f"{name}{bitness}.exe")
 
-def build(name, distlibhash, commands):
-    for bitness, console in commands:
-        suffix = "" if console else "w"
-        exe_path = Path(".") / f"{name}-distlib{distlibhash}-{suffix}{bitness}.exe"
+def build(name, launcher, bitness):
+    suffix = "" if launcher == "t" else "w"
+    exe_input = Path(distlib.scripts.__file__).parent / f"{launcher}{bitness}.exe"
+    exe_output = Path(".") / f"{name}-{launcher}{bitness}.exe"
 
-        # 1. Get the base launcher exe from distlib
-        with open(find_exe(bitness, console), "rb") as f:
-            launcher_b = f.read()
+    # 1. Get the base launcher exe from distlib
+    with exe_input.open("rb") as f:
+        launcher_b = f.read()
 
-        # 2. Shebang
-        shebang = f"#!<launcher_dir>\\python{bitness}\\python{suffix}.exe\r\n".encode("utf-8")
+    # 2. Shebang
+    shebang = f"#!<launcher_dir>\\python{bitness}\\python{suffix}.exe\r\n".encode("utf-8")
 
-        # 3. Script contents
-        zip_bio = io.BytesIO()
-        with ZipFile(zip_bio, "w") as zf:
-            zf.writestr("__main__.py", SCRIPT.encode("utf-8"))
+    # 3. Script contents
+    zip_bio = io.BytesIO()
+    with ZipFile(zip_bio, "w") as zf:
+        zf.writestr("__main__.py", SCRIPT.encode("utf-8"))
 
-        # Put the pieces together
-        with exe_path.open("wb") as f:
-            f.write(launcher_b)
-            f.write(shebang)
-            f.write(zip_bio.getvalue())
+    # Put the pieces together
+    with exe_output.open("wb") as f:
+        f.write(launcher_b)
+        f.write(shebang)
+        f.write(zip_bio.getvalue())
 
 
 if __name__ == "__main__":
-    build("launcher", sys.argv[1], (
-        (32, True),
-        (32, False),
-        (64, True),
-        (64, False),
-    ))
+    build(*sys.argv[1:4])

@@ -1,12 +1,10 @@
-( set -x; git --version; )
+distlib="$1"
+name="$2"
+type="$3"
+bitness="$4"
 
 [[ -d distlib-git ]] || git clone https://github.com/pypa/distlib.git distlib-git
+pip install --force-reinstall "git+file://$(pwd)/distlib-git/.git@${distlib}"
 
-while read -r hash; do
-  describe=$(git --git-dir ./distlib-git/.git describe --tags "${hash}")
-  echo "Installing distlib ${describe} (${hash})"
-  pip install --force-reinstall "git+file://$(pwd)/distlib-git/.git@${hash}"
-  echo "Building launchers with distlib ${describe} (${hash})"
-  python ./build.py "${describe}"
-  echo ""
-done < <(git --git-dir ./distlib-git/.git log "--pretty=format:%H" 0.3.3~1..0.3.4)
+echo "Building distlib ${distlib} launcher: ${type}${bitness}"
+python ./build.py "${name}" "${type}" "${bitness}"

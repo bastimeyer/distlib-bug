@@ -1,40 +1,39 @@
-name: Build
+name: Distlib 0.3.5 issue
 
 on:
-    push: {}
+  push: {}
 
 jobs:
   build:
     runs-on: windows-2022
+    name: ${{ matrix.distlib }}-${{ matrix.type }}${{ matrix.bitness }}
+    strategy:
+      fail-fast: false
+      matrix:
+        distlib: ["0.3.3", "0.3.4", "0.3.5"]
+        type: ["t", "w"]
+        bitness: [32, 64]
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: "3.10"
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v3
         with:
-          node-version: 14
+          node-version: 18
       - name: Python embed archives
         shell: bash
         run: |
-          curl -SLo python32.zip 'https://www.python.org/ftp/python/3.10.2/python-3.10.2-embed-win32.zip'
-          curl -SLo python64.zip 'https://www.python.org/ftp/python/3.10.2/python-3.10.2-embed-amd64.zip'
-          unzip python32.zip -d python32
-          unzip python64.zip -d python64
-          ls -l python*
+          if [[ ${{ matrix.bitness }} == 32 ]]; then
+            curl -SLo python32.zip 'https://www.python.org/ftp/python/3.10.5/python-3.10.5-embed-win32.zip'
+            unzip python32.zip -d python32
+          else
+            curl -SLo python64.zip 'https://www.python.org/ftp/python/3.10.5/python-3.10.5-embed-amd64.zip'
+            unzip python64.zip -d python64
+          fi
       - name: Build
         shell: bash
-        run: |
-          bash ./build.sh
-          ls -l *.exe
+        run: ./build.sh "${{ matrix.distlib }}" launcher "${{ matrix.type }}" "${{ matrix.bitness }}"
       - name: Run
         shell: bash
-        run: |
-          for file in $(find . -name 'launcher-*.exe' | sort -V); do
-            echo "FILE: $file"
-            ( set -x; bash ./run.sh "$file" foo bar )
-            ( set -x; node ./run-spawn.js "$file" foo bar )
-            ( set -x; node ./run-execFile.js "$file" foo bar )
-            echo ""
-            echo ""
-          done
+        run: node ./run.js launcher-${{ matrix.type }}${{ matrix.bitness }}.exe
