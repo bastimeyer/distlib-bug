@@ -1,5 +1,5 @@
 const { spawn } = require( "child_process" );
-const { argv, stderr, stdout } = require( "process" );
+const { argv } = require( "process" );
 
 
 ( async () => {
@@ -13,8 +13,8 @@ const { argv, stderr, stdout } = require( "process" );
         child.on( "error", reject );
         child.on( "close", status => console.log( `CLOSED CHILD (${child.pid}): ${status}` ) );
         child.on( "spawn", () => resolve( child ) );
-        child.stderr.pipe( stderr );
-        child.stdout.pipe( stdout );
+        child.stderr.on( "data", chunk => console.log( `STDERR: ${chunk}` ) );
+        child.stdout.on( "data", chunk => console.log( `STDOUT: ${chunk}` ) );
     });
 
     console.log( "WAITING 5 SECONDS, THEN KILLING CHILD PROCESS" );
